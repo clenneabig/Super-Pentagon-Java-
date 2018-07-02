@@ -1,0 +1,38 @@
+v0.1 (Alpha) Changelog:
+Changed dot speed from 0.03 to 0.02
+
+v0.2 (Alpha) Changelog:
+Added opposite direction rotation
+
+v0.3 (Alpha) Changelog:
+Added triangle fan background with gradual colours
+Changed dot colour to white
+Made walls thicker
+Made walls pink
+Pentagon now filled in with black
+Walls disappear later as to make it look better
+
+v0.4 (Alpha) Changelog:
+Made time look better whilst playing
+Changed wall speed from 2 to 1.5
+
+v0.5 (Beta) Changelog:
+Added power up so you can destroy a wall every 30 seconds
+
+v0.6 (Beta) Changelog:
+Added pulsating colours
+
+v0.7 (Beta) Changelog:
+Added a hard and easy mode
+
+v0.8 (Beta) Changelog:
+Added a highscore system
+
+v0.9 (Beta) Changelog:
+Made background and walls change colour every 30 secs
+
+v1.0 (Final) Changelog:
+Made the middle shape's stroke black
+
+v1.0.1 (Final) Changelog:
+Fixed it so highscores save to the data folder and don't make a new file outside
