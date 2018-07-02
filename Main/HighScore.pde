@@ -30,6 +30,6 @@ class HighScore {
     for(int i = 0; i < scores.size(); i++) {
       times[i] = scores.get(i) + "";
     }
-    saveStrings("data\\"+file, times);
+    saveStrings("data/"+file, times);
   }
 }
