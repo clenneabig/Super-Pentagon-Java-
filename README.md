@@ -1,7 +1,7 @@
 # Super-Pentagon-Java-
 My Super Pentagon game using the Processing libraries for Java in the Processing IDE
 
-Design Help by Dylan Wansbrough
+UI Design by Dylan Wansbrough
 
 The Windows 64 bit version has Java embeded. For the other versions, you may need to download and install 
 Java 8.
