@@ -3,6 +3,9 @@ My Super Pentagon game using the Processing libraries for Java in the Processing
 
 Design Help by Dylan Wansbrough
 
+The Windows 64 bit version has Java embeded. For the other versions, you may need to download and install 
+Java 8.
+
 If you would like to save high score times between releases, navagate to the folder with the executable, 
 go to the `data` folder and copy the highScore txt files to somewhere, and then when you download the new 
 release, put them back in the `data` folder
