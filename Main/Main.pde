@@ -1,13 +1,12 @@
 import java.util.Timer;
+
 float mix = 0.5;
 float dotSize = 10;
 int side = 0;
 float angle = 0;
 float innerWidth = 50;
-float pathWidth = 60;
 float speed = 0.02;
 ArrayList<Walls> walls = new ArrayList<Walls>();
-ArrayList<Button> mainButtons = new ArrayList<Button>();
 ArrayList<Button> instructButtons = new ArrayList<Button>();
 int numSides = 5;
 PShape inner, path;
@@ -17,21 +16,14 @@ boolean rotation = true;
 boolean powerUp = true;
 HighScore scoreEasy;
 HighScore scoreHard;
-int section = 0;
 State state = State.MENU;
 State prevState;
 StopWatchTimer timer = new StopWatchTimer();
 PImage img;
 PFont font;
 PFont defau;
-String titleText = "SUPER PENTAGON!";
-String keyBindings = "Press Enter to retry. Press Esc to go back to the main menu.";
-String gameOver = "Game Over";
-String goal = "GOAL";
 String easyScores = "highScoresEasy.txt";
 String hardScores = "highScoresHard.txt";
-String highScores = "HIGH SCORES";
-String controls = "CONTROLS & ITEMS";
 
 void setup() {
   size(1200, 675);
@@ -44,35 +36,6 @@ void setup() {
   textSize(12.0);
   stroke(0);
   //This makes and adds the buttons to the ArrayLists
-  mainButtons.add(new Button(width/4, height/2, 150, 40, "Easy") { 
-    //This tells the program what to do when the button is pressed
-    public void click() {
-      state = State.IN_GAME1;
-      prevState = State.IN_GAME1;
-      startGame();
-    }
-  }
-  );
-  mainButtons.add(new Button(width/4, height/2+60, 150, 40, "Hard") {
-    public void click() {
-      state = State.IN_GAME2;
-      prevState = State.IN_GAME2;
-      startGame();
-    }
-  }
-  );
-  mainButtons.add(new Button(width/2, height/2, 150, 40, "How To Play") { 
-    public void click() {
-      state = State.GOAL;
-    }
-  }
-  );
-  mainButtons.add(new Button(width-width/4, height/2, 150, 40, "Highscores") {
-    public void click() {
-      state = State.SCORES1;
-    }
-  }
-  );
   instructButtons.add(new Button(width/5, height/8-10, 150, 40, "Main Menu") {
     public void click() {
       state = State.MENU;
@@ -109,7 +72,7 @@ void startGame() {
   path = createShape();
   //This draws the 2 shapes
   polygon(0, 0, innerWidth, numSides, inner);
-  polygon(0, 0, pathWidth, numSides, path);
+  polygon(0, 0, 60, numSides, path);
   assignEdge();
   pen = start.copy();
   //This adds the Walls objects to the ArrayList
@@ -161,17 +124,11 @@ void draw() {
     return;
   }
   if (state == State.SCORES1) drawHighScores();
-  if (state == State.IN_GAME1) {
+  if (state == State.IN_GAME1 || state == State.IN_GAME2) {
     stroke(150, 0, 250);
     noFill();
     textSize(12.0);
-    drawGameEasy();
-  } 
-  else if (state == State.IN_GAME2) {
-    stroke(150, 0, 250);
-    noFill();
-    textSize(12.0);
-    drawGameHard();
+    drawGame();
   } 
   else if (state == State.GAME_OVER) {
     drawGameOver();
@@ -226,6 +183,36 @@ void keyReleased() {
 }
 
 void drawMenu() {
+  ArrayList<Button> mainButtons = new ArrayList<Button>();
+  mainButtons.add(new Button(width/4, height/2, 150, 40, "Easy") { 
+    //This tells the program what to do when the button is pressed
+    public void click() {
+      state = State.IN_GAME1;
+      prevState = State.IN_GAME1;
+      startGame();
+    }
+  }
+  );
+  mainButtons.add(new Button(width/4, height/2+60, 150, 40, "Hard") {
+    public void click() {
+      state = State.IN_GAME2;
+      prevState = State.IN_GAME2;
+      startGame();
+    }
+  }
+  );
+  mainButtons.add(new Button(width/2, height/2, 150, 40, "How To Play") { 
+    public void click() {
+      state = State.GOAL;
+    }
+  }
+  );
+  mainButtons.add(new Button(width-width/4, height/2, 150, 40, "Highscores") {
+    public void click() {
+      state = State.SCORES1;
+    }
+  }
+  );
   numSides = 5;
   textSize(50);
   image(img, width/4-15, height/4);
@@ -246,6 +233,7 @@ void drawGoal() {
                     " avoiding the lines coming towards you. Try to get the longest time you can. In" + 
                     " easy mode, the walls move at a slower speed and the shape is always a pentagon." + 
                     " In hard mode, the walls move at a faster speed and the shape can range from a square to an octogon.";
+  String goal = "GOAL";
   textFont(font);
   textSize(30);
   fill(255);
@@ -272,6 +260,7 @@ void drawControls() {
   String controlPara = "Press the left and right arrows keys to move around the pentagon. Press F when the" + 
                        " power up is active to destroy the closest set of walls. The power up recharges every" + 
                        " time the colour changes. Pressing Esc at anytime will return you to the main menu.";
+  String controls = "CONTROLS & ITEMS";
   textFont(font);
   textSize(30);
   fill(255);
@@ -295,6 +284,8 @@ void drawControls() {
 }
 
 void drawGameOver() {
+  String keyBindings = "Press Enter to retry. Press Esc to go back to the main menu.";
+  String gameOver = "Game Over";
   powerUp = true;
   String time = "Your time: " + fixScore(timer.second()) + " seconds";
   textSize(50);
@@ -314,6 +305,7 @@ void drawGameOver() {
 }
 
 void drawHighScores() {
+  String highScores = "HIGH SCORES";
   textFont(font);
   textSize(30);
   fill(255);
@@ -350,7 +342,7 @@ void drawHighScores() {
   }
 }
 
-void drawGameEasy() {
+void drawGame() {
   pushMatrix(); 
   {
     //This allows the dot to move left and right around the shape
@@ -368,11 +360,21 @@ void drawGameEasy() {
       if (wall.collided()) {
         timer.stop();
         //This adds the time to the text file
-        scoreEasy.addTime(timer.second(), easyScores);
+        if(state == State.IN_GAME1){
+          scoreEasy.addTime(timer.second(), easyScores); 
+        }
+        else if(state == State.IN_GAME2){
+          scoreHard.addTime(timer.second(), hardScores);
+        }
         state = State.GAME_OVER;
         return;
       }
-      wall.drawWalls(1.5);
+      if(state == State.IN_GAME1){
+        wall.drawWalls(1.5);
+      }
+      else if(state == State.IN_GAME2){
+        wall.drawWalls(2);
+      }
     }
     stroke(255);
     fill(255);
@@ -403,10 +405,18 @@ void drawGameEasy() {
   text(fixScore(timer.second()), width-200, 125);
   textFont(defau);
   textSize(25);
-  if (scoreEasy.scores.size() != 0) text("High Score", 100, 80);
-  textFont(font);
-  textSize(30);
-  if (scoreEasy.scores.size() != 0) text(fixScore(scoreEasy.scores.get(0)), 100, 125);
+  if(state == State.IN_GAME1){
+    if (scoreEasy.scores.size() != 0) text("High Score", 100, 80);
+    textFont(font);
+    textSize(30);
+    if (scoreEasy.scores.size() != 0) text(fixScore(scoreEasy.scores.get(0)), 100, 125);
+  }
+  else if(state == State.IN_GAME2){
+    if (scoreHard.scores.size() != 0) text("High Score", 100, 80);
+    textFont(font);
+    textSize(30);
+    if (scoreHard.scores.size() != 0) text(fixScore(scoreHard.scores.get(0)), 100, 125);
+  }
   textFont(defau);
   textSize(25);
   text("Power Up", (width/2)-50, 80);
@@ -414,74 +424,6 @@ void drawGameEasy() {
   textSize(30);
   if (powerUp) text("Active", (width/2)-50, 125); 
   else if (!powerUp) text("Inactive", (width/2)-50, 125);
-  textFont(defau);
-}
-
-void drawGameHard() {
-  pushMatrix(); 
-  {
-    //This allows the dot to move left and right around the shape
-    if (left) mix-=scaled(speed);
-    if (right) mix+=scaled(speed);
-    translate(width/2, height/2);
-    rotate(angle);
-    noStroke();
-    noFill();
-
-    //visible pentagon
-    stroke(150, 0, 250);
-    shape(inner);
-    //Collision detection
-    for (Walls wall : walls) {
-      if (wall.collided()) {
-        timer.stop();
-        //This adds the score to the text file
-        scoreHard.addTime(timer.second(), hardScores);
-        state = State.GAME_OVER;
-        return;
-      }
-      wall.drawWalls(2);
-    }
-    stroke(255);
-    fill(255);
-
-    //Pentagon dot
-    ellipse(pen.x, pen.y, dotSize, dotSize);
-
-    //If statements for dot movement
-    if (mix > 1) {
-      mix = 0;
-      side=(++side)%numSides;
-      assignEdge();
-    } 
-    else if (mix < 0) {
-      mix = 1;
-      side--;
-      if (side < 0) side = numSides-1;
-      assignEdge();
-    } 
-    else pen = PVector.lerp(start, target, mix);
-  }
-  popMatrix();
-  //This draws the text on the screen
-  textSize(25);
-  text("Your time", width-200, 80);
-  textFont(font);
-  textSize(30);
-  text(fixScore(timer.second()), width-200, 125);
-  textFont(defau);
-  textSize(25);
-  if (scoreHard.scores.size() != 0) text("High Score", 100, 80);
-  textFont(font);
-  textSize(30);
-  if (scoreHard.scores.size() != 0) text(fixScore(scoreHard.scores.get(0)), 100, 125);
-  textFont(defau);
-  textSize(25);
-  text("Power Up", width/2, 80);
-  textFont(font);
-  textSize(30);
-  if (powerUp) text("Active", width/2, 125); 
-  else if (!powerUp) text("Inactive", width/2, 125);
   textFont(defau);
 }
 
