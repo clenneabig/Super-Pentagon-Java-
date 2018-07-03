@@ -19,7 +19,7 @@ HighScore scoreHard;
 State state = State.MENU;
 State prevState;
 StopWatchTimer timer = new StopWatchTimer();
-PImage img;
+PImage img, cogwheel, play, highscores;
 PFont font;
 PFont defau;
 String easyScores = "highScoresEasy.txt";
@@ -29,26 +29,28 @@ void setup() {
   size(1200, 675);
   //Loading files for use
   img = loadImage("title.png");
+  cogwheel = loadImage("Cogwheel.png");
+  play = loadImage("play_button.png");
+  highscores = loadImage("High_Score.png");
   font = loadFont("superHexagon.vlw");
   defau = loadFont("default.vlw");
   frameRate(60);
   startGame();
-  textSize(12.0);
-  stroke(0);
+  textSize(12);
   //This makes and adds the buttons to the ArrayLists
-  instructButtons.add(new Button(width/5, height/8-10, 150, 40, "Main Menu") {
+  instructButtons.add(new Button(width/5, height/8-10, 150, 40, "< Main Menu") {
     public void click() {
       state = State.MENU;
     }
   }
   );
-  instructButtons.add(new Button(width-width/4, height-height/8, 150, 40, "Next") {
+  instructButtons.add(new Button(width-width/4, height-height/8, 150, 40, "Next >") {
     public void click() {
       state = State.CONTROLS;
     }
   }
   );
-  instructButtons.add(new Button(width/4, height-height/8, 150, 40, "Prev") {
+  instructButtons.add(new Button(width/4, height-height/8, 150, 40, "< Prev") {
     public void click() {
       state = State.GOAL;
     }
@@ -117,6 +119,7 @@ void draw() {
   if (state == State.GOAL) drawGoal();
   if (state == State.CONTROLS) drawControls();
   if (state == State.MENU) drawMenu();
+  if (state == State.CREDITS) drawCredits();
   //This goes back to the main menu when the ESC key is pressed
   if (keyPressed && key == ESC) {
     stroke(0);
@@ -182,6 +185,32 @@ void keyReleased() {
   }
 }
 
+void drawCredits(){
+  Button mainMenu = new Button(width/5, height/8-10, 150, 40, "< Main Menu") {
+    public void click() {
+      state = State.MENU;
+    }
+  };
+  String creditsPara = "Developer: Daniel Clennell\n" + 
+                       "UI Designer: Dylan Wansbrough";
+  String credits = "CREDITS";
+  textFont(font);
+  textSize(30);
+  fill(255);
+  text(credits, width/2-textWidth(credits)/2, height/8);
+  textFont(defau);
+  textSize(20);
+  if (mainMenu.bounds.contains(mouseX, mouseY)) { 
+    fill(150, 0, 250);
+    if (mousePressed) mainMenu.click();
+  } 
+  else noFill();
+  mainMenu.render();
+  textSize(30);
+  fill(255);
+  text(creditsPara, width/4, (height/16)+80, width/2, height-height/4);
+}
+
 void drawMenu() {
   ArrayList<Button> mainButtons = new ArrayList<Button>();
   mainButtons.add(new Button(width/4, height/2, 150, 40, "Easy") { 
@@ -207,6 +236,12 @@ void drawMenu() {
     }
   }
   );
+  mainButtons.add(new Button(width/2, height/2+60, 150, 40, "Credits") { 
+    public void click() {
+      state = State.CREDITS;
+    }
+  }
+  );
   mainButtons.add(new Button(width-width/4, height/2, 150, 40, "Highscores") {
     public void click() {
       state = State.SCORES1;
@@ -214,8 +249,20 @@ void drawMenu() {
   }
   );
   numSides = 5;
-  textSize(50);
   image(img, width/4-15, height/4);
+  cogwheel.resize(0, 40);
+  image(cogwheel, width/2-20, height/2-75);
+  play.resize(0,40);
+  image(play, width/4-14, height/2-75);
+  highscores.resize(0,40);
+  image(highscores, width-width/4-37, height/2-75);
+  strokeWeight(2);
+  stroke(255);
+  line(width/2-75, height/2-25, width/2+75, height/2-25);
+  line(width/4-75, height/2-25, width/4+75, height/2-25);
+  line(width-width/4-75, height/2-25, width-width/4+75, height/2-25);
+  strokeWeight(0);
+  noStroke();
   textSize(20);
   //This draws the buttons for the menu
   for (Button button : mainButtons) {
@@ -243,7 +290,7 @@ void drawGoal() {
   //This draws the buttons for the goal screen
   for (Button button : instructButtons) {
     //This skips the Prev button
-    if (button.label.equals("Prev")) continue;
+    if (button.label.equals("< Prev")) continue;
     if (button.bounds.contains(mouseX, mouseY)) { 
       fill(150, 0, 250);
       if (mousePressed) button.click();
@@ -259,8 +306,9 @@ void drawGoal() {
 void drawControls() {
   String controlPara = "Press the left and right arrows keys to move around the pentagon. Press F when the" + 
                        " power up is active to destroy the closest set of walls. The power up recharges every" + 
-                       " time the colour changes. Pressing Esc at anytime will return you to the main menu.";
-  String controls = "CONTROLS & ITEMS";
+                       " time the colour changes. Pressing Esc at anytime will return you to the main menu." +
+                       " Pressing Enter at the game over screen will restart the game in the current difficulty.";
+  String controls = "CONTROLS";
   textFont(font);
   textSize(30);
   fill(255);
@@ -270,7 +318,7 @@ void drawControls() {
   //This draws the buttons for the control screen
   for (Button button : instructButtons) {
     //This skips the Next button
-    if (button.label.equals("Next")) continue;
+    if (button.label.equals("Next >")) continue;
     if (button.bounds.contains(mouseX, mouseY)) { 
       fill(150, 0, 250);
       if (mousePressed) button.click();
@@ -284,13 +332,38 @@ void drawControls() {
 }
 
 void drawGameOver() {
-  String keyBindings = "Press Enter to retry. Press Esc to go back to the main menu.";
+  ArrayList<Button> gameOverButtons = new ArrayList<Button>();
+  gameOverButtons.add(new Button(width/2, height/2+60, 200, 50, "Retry"){
+    public void click(){
+      //If the previous state was the Hard mode, make random number of sides for the middle shape if you press click retry
+      if (prevState == State.IN_GAME2) numSides = (int) random(4, 8);
+      state = prevState;
+      startGame();
+    }
+  });
+  gameOverButtons.add(new Button(width/2, height/2+140, 200, 50, "Main Menu"){
+    public void click(){
+      state = State.MENU;
+    }
+  });
   String gameOver = "Game Over";
+  String difficulty = "";
   powerUp = true;
   String time = "Your time: " + fixScore(timer.second()) + " seconds";
+  String highTime = "";
+  if(prevState == State.IN_GAME1 && scoreEasy.scores.size() != 0){
+    highTime = "Your highscore: " + fixScore(scoreEasy.scores.get(0)) + " seconds";
+    difficulty = "Easy";
+  }
+  else if(prevState == State.IN_GAME2 && scoreHard.scores.size() != 0){
+    highTime = "Your highscore: " + fixScore(scoreHard.scores.get(0)) + " seconds";
+    difficulty = "Hard";
+  }
   textSize(50);
   fill(255);
+  text(difficulty, width/2-textWidth(difficulty)/2, height/8);
   text(time, width/2-textWidth(time)/2, height/4);
+  text(highTime, width/2-textWidth(highTime)/2, height/4+50);
   textSize(20);
   textFont(font);
   colorMode(HSB, 360, 100, 100);
@@ -300,7 +373,14 @@ void drawGameOver() {
   textFont(defau);
   textSize(30);
   fill(255);
-  text(keyBindings, width/2 - textWidth(keyBindings)/2, height-height/4);
+  for (Button button : gameOverButtons) {
+    if (button.bounds.contains(mouseX, mouseY)) { 
+      fill(150, 0, 250);
+      if (mousePressed) button.click();
+    } 
+    else noFill();
+    button.render();
+  }
   textSize(12.0);
 }
 
@@ -313,7 +393,7 @@ void drawHighScores() {
   textFont(defau);
   textSize(20);
   //This draws the button for the highscores screen
-  Button mainMenu = new Button(width/5, height/8-10, 150, 40, "Main Menu") {
+  Button mainMenu = new Button(width/5, height/8-10, 150, 40, "< Main Menu") {
     public void click() {
       state = State.MENU;
     }
@@ -334,7 +414,7 @@ void drawHighScores() {
     i++;
   }
   i = 1;
-  text("Hard", 3*width/4-80, (height/16)+80, 3*width/4, height-height/4);
+  text("Hard", width-width/4-80, (height/16)+80, 3*width/4, height-height/4);
   //This displays the highscores from the text file
   for (Float time : scoreHard.scores) {
     text(i + ". " + fixScore(time), 3*width/4-80, ((i+1)*height/16)+80, 3*width/4, height-height/4);
@@ -357,7 +437,7 @@ void drawGame() {
     shape(inner);
     //Collision detection
     for (Walls wall : walls) {
-      if (wall.collided()) {
+        if (wall.collided()) {
         timer.stop();
         //This adds the time to the text file
         if(state == State.IN_GAME1){
