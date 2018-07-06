@@ -349,14 +349,19 @@ void drawGameOver() {
   String gameOver = "Game Over";
   String difficulty = "";
   powerUp = true;
-  String time = "Your time: " + fixScore(timer.second()) + " seconds";
+  String plural = " second";
+  String pluralHigh = " second";
+  if(timer.second() != 1) plural = " seconds";
+  String time = "Your time: " + fixScore(timer.second()) + plural;
   String highTime = "";
   if(prevState == State.IN_GAME1 && scoreEasy.scores.size() != 0){
-    highTime = "Your highscore: " + fixScore(scoreEasy.scores.get(0)) + " seconds";
+    if(scoreEasy.scores.get(0) != 1) pluralHigh = " seconds";
+    highTime = "Your highscore: " + fixScore(scoreEasy.scores.get(0)) + pluralHigh;
     difficulty = "Easy";
   }
   else if(prevState == State.IN_GAME2 && scoreHard.scores.size() != 0){
-    highTime = "Your highscore: " + fixScore(scoreHard.scores.get(0)) + " seconds";
+    if(scoreHard.scores.get(0) != 1) pluralHigh = " seconds";
+    highTime = "Your highscore: " + fixScore(scoreHard.scores.get(0)) + pluralHigh;
     difficulty = "Hard";
   }
   textSize(50);
