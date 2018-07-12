@@ -22,4 +22,5 @@ launch.
 To launch the game on Linux, navigate to the Executables folder, if using an x86 or x86_64 system go to either 
 application.linuxXX where XX is either 32 for x86 systems or 64 for x86_64 systems, or if you are using an ARMv6 
 with a hardware floating point unit, go to application.linux-armv6hf, or if you're using an ARM 64-bit system 
-go to application.linux-arm64, in the terminal type ./Main to run it.
+go to application.linux-arm64, navigate to the applications folder and in the terminal type `chmod +x Main` and then type
+./Main to run it.
