@@ -6,10 +6,7 @@ UI Design by Dylan Wansbrough
 The Windows 64 bit version has Java embeded. For the other versions, you may need to download and install 
 Java 8.
 
-To download just the folder with the executable that you want, You need to use either Linux or the Windows 
-Linux Subsystem. In the terminal, make sure you have svn installed by typing `sudo apt install subversion` 
-Once that has installed, type `svn checkout https://github.com/clennedani/Super-Pentagon-Java-/trunk/Executables/[Name of executable folder]` 
-into your terminal and the folder will download to the current directory.
+To download just the folder with the executable that you want, go to releases and download the zip folder you want.
 
 If you would like to save high score times between releases, navagate to the folder with the executable, 
 go to the `data` folder and copy the highScore txt files to somewhere, and then when you download the new 
