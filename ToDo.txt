@@ -1,3 +1,5 @@
 Add more modes
 Add some sort of scoring system (could be a different mode)
-Add levels that save progress (could also be a different mode)
+Add levels that save progress (could also be a different mode):
+	Add level select
+Add patterns to the walls
