@@ -127,6 +127,8 @@ void draw() {
   if (state == State.CONTROLS) drawControls();
   if (state == State.MENU) drawMenu();
   if (state == State.LEVELS_MENU) drawLevelMenu();
+  if (state == State.LEVEL_UP) drawLevelUp();
+  if (state == State.LEVELS_WIN) drawLevelWin();
   if (state == State.CREDITS) drawCredits();
   //This goes back to the main menu when the ESC key is pressed
   if (keyPressed && key == ESC) {
@@ -536,7 +538,7 @@ void drawGame() {
         wall.drawWalls(wallSpeed);
       }
     }
-    if ((int) (timer.second()) / 30 == 1) {
+    if (state == State.IN_GAME3 && (int) (timer.second()) / 30 == 1) {
         powerUp = true;
         timer.stop();
         if(level < 20){ level++;
