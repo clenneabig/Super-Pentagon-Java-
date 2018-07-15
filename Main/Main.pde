@@ -6,14 +6,17 @@ int side = 0;
 float angle = 0;
 float innerWidth = 50;
 float speed = 0.02;
+float wallSpeed = 1.6;
 ArrayList<Walls> walls = new ArrayList<Walls>();
 ArrayList<Button> instructButtons = new ArrayList<Button>();
 int numSides = 5;
+float levelsNumSides = 4;
 PShape inner, path;
 PVector target, start, pen;
 boolean left, right;
 boolean rotation = true;
 boolean powerUp = true;
+float level = 1;
 HighScore scoreEasy;
 HighScore scoreHard;
 State state = State.MENU;
@@ -59,6 +62,10 @@ void setup() {
   //Sets up the highscores
   scoreEasy = new HighScore(easyScores);
   scoreHard = new HighScore(hardScores);
+  String[] variables = loadStrings("save.sav");
+  level = Float.parseFloat(variables[0]);
+  wallSpeed = Float.parseFloat(variables[1]);
+  levelsNumSides = Float.parseFloat(variables[2]);
 }
 
 void startGame() {
@@ -98,8 +105,8 @@ float scaled(float value) {
 
 void draw() {
   /*This is so that when playing hard, the background at the game over screen
-  doesn't give away when num of sides the next try will has*/
-  if (state == State.GAME_OVER) numSides = 5;
+  doesn't give away what num of sides the next try will have*/
+  if (state == State.GAME_OVER || state == State.LEVELS_MENU) numSides = 5;
   //This is for the background, it allows the triangle fan to spin while the menu stays still
   pushMatrix();
   {
@@ -119,6 +126,7 @@ void draw() {
   if (state == State.GOAL) drawGoal();
   if (state == State.CONTROLS) drawControls();
   if (state == State.MENU) drawMenu();
+  if (state == State.LEVELS_MENU) drawLevelMenu();
   if (state == State.CREDITS) drawCredits();
   //This goes back to the main menu when the ESC key is pressed
   if (keyPressed && key == ESC) {
@@ -127,7 +135,7 @@ void draw() {
     return;
   }
   if (state == State.SCORES1) drawHighScores();
-  if (state == State.IN_GAME1 || state == State.IN_GAME2) {
+  if (state == State.IN_GAME1 || state == State.IN_GAME2 || state == State.IN_GAME3) {
     stroke(150, 0, 250);
     noFill();
     textSize(12.0);
@@ -138,6 +146,7 @@ void draw() {
     if (keyPressed && key == ENTER) {
       //If the previous state was the Hard mode, make random number of sides for the middle shape if you press enter to retry
       if (prevState == State.IN_GAME2) numSides = (int) random(4, 8);
+      else if (prevState == State.IN_GAME3) numSides = (int) levelsNumSides;
       state = prevState;
       startGame();
     }
@@ -185,6 +194,50 @@ void keyReleased() {
   }
 }
 
+void drawLevelMenu(){
+  List<Button> buttons = new ArrayList<Button>();
+  buttons.add(new Button(width/5, height/8-10, 150, 40, "< Main Menu") {
+    public void click() {
+      state = State.MENU;
+    }
+  });
+  buttons.add(new Button(width/2, height/2-60, 150, 40, "New Game") {
+    public void click() {
+      level = 1;
+      wallSpeed = 1.5;
+      state = State.IN_GAME3;
+      prevState = State.IN_GAME3;
+      startGame();
+    }
+  });
+  if(level != 1){
+    buttons.add(new Button(width/2, height/2+60, 150, 40, "Load Game") {
+      public void click() {
+        state = State.IN_GAME3;
+        prevState = State.IN_GAME3;
+        startGame();
+      }
+    });
+  }
+  String levels = "LEVELS";
+  textFont(font);
+  textSize(30);
+  fill(255);
+  text(levels, width/2-textWidth(levels)/2, height/8);
+  textFont(defau);
+  textSize(20);
+  for(Button b : buttons){
+    if (b.bounds.contains(mouseX, mouseY)) { 
+      fill(150, 0, 250);
+      if (mousePressed) b.click();
+    } 
+    else noFill();
+    b.render();
+  }
+  textSize(30);
+  fill(255);
+}
+
 void drawCredits(){
   Button mainMenu = new Button(width/5, height/8-10, 150, 40, "< Main Menu") {
     public void click() {
@@ -216,6 +269,7 @@ void drawMenu() {
   mainButtons.add(new Button(width/4, height/2, 150, 40, "Easy") { 
     //This tells the program what to do when the button is pressed
     public void click() {
+      numSides = 5;
       state = State.IN_GAME1;
       prevState = State.IN_GAME1;
       startGame();
@@ -224,12 +278,19 @@ void drawMenu() {
   );
   mainButtons.add(new Button(width/4, height/2+60, 150, 40, "Hard") {
     public void click() {
+      numSides = 5;
       state = State.IN_GAME2;
       prevState = State.IN_GAME2;
       startGame();
     }
   }
   );
+  mainButtons.add(new Button(width/4, height/2+120, 150, 40, "Levels"){
+    public void click(){
+      numSides = int(levelsNumSides);
+      state = State.LEVELS_MENU;
+    }
+  });
   mainButtons.add(new Button(width/2, height/2, 150, 40, "How To Play") { 
     public void click() {
       state = State.GOAL;
@@ -279,7 +340,10 @@ void drawGoal() {
   String goalPara = "The goal of the game is to move the white dot around the black pentagon whilst" + 
                     " avoiding the lines coming towards you. Try to get the longest time you can. In" + 
                     " easy mode, the walls move at a slower speed and the shape is always a pentagon." + 
-                    " In hard mode, the walls move at a faster speed and the shape can range from a square to an octogon.";
+                    " In hard mode, the walls move at a faster speed and the shape can range from a " + 
+                    "square to an octogon. In levels mode, you will proceed through a series of levels " + 
+                    "with increasing difficulty. It will save your progress each time you successfully " +
+                    "complete a level";
   String goal = "GOAL";
   textFont(font);
   textSize(30);
@@ -347,28 +411,32 @@ void drawGameOver() {
     }
   });
   String gameOver = "Game Over";
-  String difficulty = "";
+  String mode = "";
   powerUp = true;
   String plural = " second";
   String pluralHigh = " second";
   if(timer.second() != 1) plural = " seconds";
   String time = "Your time: " + fixScore(timer.second()) + plural;
-  String highTime = "";
+  String high = "";
   if(prevState == State.IN_GAME1 && scoreEasy.scores.size() != 0){
     if(scoreEasy.scores.get(0) != 1) pluralHigh = " seconds";
-    highTime = "Your highscore: " + fixScore(scoreEasy.scores.get(0)) + pluralHigh;
-    difficulty = "Easy";
+    high = "Your highscore: " + fixScore(scoreEasy.scores.get(0)) + pluralHigh;
+    mode = "Easy";
   }
   else if(prevState == State.IN_GAME2 && scoreHard.scores.size() != 0){
     if(scoreHard.scores.get(0) != 1) pluralHigh = " seconds";
-    highTime = "Your highscore: " + fixScore(scoreHard.scores.get(0)) + pluralHigh;
-    difficulty = "Hard";
+    high = "Your highscore: " + fixScore(scoreHard.scores.get(0)) + pluralHigh;
+    mode = "Hard";
+  }
+  else if(prevState == State.IN_GAME3){
+    high =  "Your level: " + int(level);
+    mode = "Levels";
   }
   textSize(50);
   fill(255);
-  text(difficulty, width/2-textWidth(difficulty)/2, height/8);
-  text(time, width/2-textWidth(time)/2, height/4);
-  text(highTime, width/2-textWidth(highTime)/2, height/4+50);
+  text(mode, width/2-textWidth(mode)/2, height/8);
+  if(prevState != State.IN_GAME3) text(time, width/2-textWidth(time)/2, height/4);
+  text(high, width/2-textWidth(high)/2, height/4+50);
   textSize(20);
   textFont(font);
   colorMode(HSB, 360, 100, 100);
@@ -427,6 +495,10 @@ void drawHighScores() {
   }
 }
 
+void drawLevelUp(){}
+
+void drawLevelWin(){}
+
 void drawGame() {
   pushMatrix(); 
   {
@@ -460,6 +532,23 @@ void drawGame() {
       else if(state == State.IN_GAME2){
         wall.drawWalls(2);
       }
+      else if(state == State.IN_GAME3){
+        wall.drawWalls(wallSpeed);
+      }
+    }
+    if ((int) (timer.second()) / 30 == 1) {
+        powerUp = true;
+        timer.stop();
+        if(level < 20){ level++;
+          if(wallSpeed < 2.0) wallSpeed += 0.1;
+          else if (numSides < 8){
+            wallSpeed = 1.6;
+            levelsNumSides++;
+          }
+          state = State.LEVEL_UP;
+        }
+        else state = State.LEVELS_WIN;
+        return;
     }
     stroke(255);
     fill(255);
@@ -501,6 +590,12 @@ void drawGame() {
     textFont(font);
     textSize(30);
     if (scoreHard.scores.size() != 0) text(fixScore(scoreHard.scores.get(0)), 100, 125);
+  }
+  else if(state == State.IN_GAME3){
+    text("Level", 100, 80);
+    textFont(font);
+    textSize(30);
+    text(int(level), 100, 125);
   }
   textFont(defau);
   textSize(25);
@@ -563,4 +658,12 @@ void triangleFan(float x, float y, float radius, int npoints) {
 //This formats the time to 2 decimal points
 String fixScore(float f) {
   return String.format("%.2f", f);
+}
+
+void saveLevel(){
+  String[] variables = new String[3];
+    variables[0] = level + "";
+    variables[1] = wallSpeed + "";
+    variables[2] = levelsNumSides + "";
+    saveStrings("data/save.sav", variables);
 }
