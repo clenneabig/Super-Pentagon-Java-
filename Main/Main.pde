@@ -6,17 +6,17 @@ int side = 0;
 float angle = 0;
 float innerWidth = 50;
 float speed = 0.02;
-float wallSpeed = 1.6;
+float wallSpeed;
 ArrayList<Walls> walls = new ArrayList<Walls>();
 ArrayList<Button> instructButtons = new ArrayList<Button>();
 int numSides = 5;
-float levelsNumSides = 4;
+float levelsNumSides;
 PShape inner, path;
 PVector target, start, pen;
 boolean left, right;
 boolean rotation = true;
 boolean powerUp = true;
-float level = 1;
+float level;
 HighScore scoreEasy;
 HighScore scoreHard;
 State state = State.MENU;
@@ -129,6 +129,7 @@ void draw() {
   if (state == State.LEVELS_MENU) drawLevelMenu();
   if (state == State.LEVEL_UP) drawLevelUp();
   if (state == State.LEVELS_WIN) drawLevelWin();
+  if (state == State.LEVEL_SELECT) drawLevelSelect();
   if (state == State.CREDITS) drawCredits();
   //This goes back to the main menu when the ESC key is pressed
   if (keyPressed && key == ESC) {
@@ -148,7 +149,7 @@ void draw() {
     if (keyPressed && key == ENTER) {
       //If the previous state was the Hard mode, make random number of sides for the middle shape if you press enter to retry
       if (prevState == State.IN_GAME2) numSides = (int) random(4, 8);
-      else if (prevState == State.IN_GAME3) numSides = (int) levelsNumSides;
+      if (prevState == State.IN_GAME3) numSides = (int) levelsNumSides;
       state = prevState;
       startGame();
     }
@@ -206,7 +207,8 @@ void drawLevelMenu(){
   buttons.add(new Button(width/2, height/2-60, 150, 40, "New Game") {
     public void click() {
       level = 1;
-      wallSpeed = 1.5;
+      wallSpeed = 1.8;
+      numSides = 4;
       state = State.IN_GAME3;
       prevState = State.IN_GAME3;
       startGame();
@@ -215,6 +217,7 @@ void drawLevelMenu(){
   if(level != 1){
     buttons.add(new Button(width/2, height/2+60, 150, 40, "Load Game") {
       public void click() {
+        numSides = (int) levelsNumSides;
         state = State.IN_GAME3;
         prevState = State.IN_GAME3;
         startGame();
@@ -289,7 +292,7 @@ void drawMenu() {
   );
   mainButtons.add(new Button(width/4, height/2+120, 150, 40, "Levels"){
     public void click(){
-      numSides = int(levelsNumSides);
+      numSides = (int) levelsNumSides;
       state = State.LEVELS_MENU;
     }
   });
@@ -403,6 +406,7 @@ void drawGameOver() {
     public void click(){
       //If the previous state was the Hard mode, make random number of sides for the middle shape if you press click retry
       if (prevState == State.IN_GAME2) numSides = (int) random(4, 8);
+      if (prevState == State.IN_GAME3) numSides = (int) levelsNumSides;
       state = prevState;
       startGame();
     }
@@ -501,6 +505,8 @@ void drawLevelUp(){}
 
 void drawLevelWin(){}
 
+void drawLevelSelect(){}
+
 void drawGame() {
   pushMatrix(); 
   {
@@ -541,16 +547,18 @@ void drawGame() {
     if (state == State.IN_GAME3 && (int) (timer.second()) / 30 == 1) {
         powerUp = true;
         timer.stop();
-        if(level < 20){ level++;
+        if(level < 15){ 
+          level++;
           if(wallSpeed < 2.0) wallSpeed += 0.1;
           else if (numSides < 8){
-            wallSpeed = 1.6;
+            wallSpeed = 1.8;
             levelsNumSides++;
           }
           state = State.LEVEL_UP;
         }
         else state = State.LEVELS_WIN;
-        return;
+        saveLevel();
+        return;  
     }
     stroke(255);
     fill(255);
@@ -601,7 +609,7 @@ void drawGame() {
   }
   textFont(defau);
   textSize(25);
-  text("Power Up", (width/2)-50, 80);
+  text("Power Up (F)", (width/2)-50, 80);
   textFont(font);
   textSize(30);
   if (powerUp) text("Active", (width/2)-50, 125); 
@@ -664,8 +672,8 @@ String fixScore(float f) {
 
 void saveLevel(){
   String[] variables = new String[3];
-    variables[0] = level + "";
-    variables[1] = wallSpeed + "";
-    variables[2] = levelsNumSides + "";
-    saveStrings("data/save.sav", variables);
+  variables[0] = level + "";
+  variables[1] = wallSpeed + "";
+  variables[2] = levelsNumSides + "";
+  saveStrings("data/save.sav", variables);
 }
