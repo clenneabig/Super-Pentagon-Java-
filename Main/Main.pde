@@ -197,6 +197,53 @@ void keyReleased() {
   }
 }
 
+void drawLevelUp(){
+  ArrayList<Button> levelUpButtons = new ArrayList<Button>();
+  levelUpButtons.add(new Button(width/2, height/2+60, 200, 50, "Next Level"){
+    public void click(){
+      //If the previous state was the Hard mode, make random number of sides for the middle shape if you press click retry
+      numSides = (int) levelsNumSides;
+      state = prevState;
+      startGame();
+    }
+  });
+  levelUpButtons.add(new Button(width/2, height/2+140, 200, 50, "Main Menu"){
+    public void click(){
+      state = State.MENU;
+    }
+  });
+  String levelUp = "Level Up";
+  String mode = "Levels";
+  powerUp = true;
+  String high =  "Your level: " + int(level);
+  textSize(50);
+  fill(255);
+  text(mode, width/2-textWidth(mode)/2, height/8);
+  text(high, width/2-textWidth(high)/2, height/4+50);
+  textSize(20);
+  textFont(font);
+  colorMode(HSB, 360, 100, 100);
+  fill(283, 100, 100);
+  text(levelUp, width/2-textWidth(levelUp)/2, height/2); 
+  colorMode(RGB, 255, 255, 255);
+  textFont(defau);
+  textSize(30);
+  fill(255);
+  for (Button button : levelUpButtons) {
+    if (button.bounds.contains(mouseX, mouseY)) { 
+      fill(150, 0, 250);
+      if (mousePressed) button.click();
+    } 
+    else noFill();
+    button.render();
+  }
+  textSize(12.0);
+}
+
+void drawLevelWin(){}
+
+void drawLevelSelect(){}
+
 void drawLevelMenu(){
   List<Button> buttons = new ArrayList<Button>();
   buttons.add(new Button(width/5, height/8-10, 150, 40, "< Main Menu") {
@@ -500,12 +547,6 @@ void drawHighScores() {
     i++;
   }
 }
-
-void drawLevelUp(){}
-
-void drawLevelWin(){}
-
-void drawLevelSelect(){}
 
 void drawGame() {
   pushMatrix(); 
