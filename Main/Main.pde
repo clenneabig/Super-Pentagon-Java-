@@ -296,7 +296,7 @@ void drawCredits(){
       state = State.MENU;
     }
   };
-  String creditsPara = "Developer: Daniel Clennell\n" + 
+  String creditsPara = "Developer: Abigail Clennell\n" + 
                        "UI Designer: Dylan Wansbrough";
   String credits = "CREDITS";
   textFont(font);
